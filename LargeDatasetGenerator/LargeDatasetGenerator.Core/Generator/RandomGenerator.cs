@@ -86,7 +86,7 @@ namespace LargeDatasetGenerator.Core.Generator
     /// <summary>
     /// A generator that chooses a random item from a list of provided ones
     /// </summary>
-    public sealed class RandomGenerator : IDataGenerator
+    public sealed class RandomGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

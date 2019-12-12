@@ -107,7 +107,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// A generator that randomly generates a date between two given dates
     /// </summary>
-    public sealed class DateGenerator : IDataGenerator
+    public sealed class DateGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

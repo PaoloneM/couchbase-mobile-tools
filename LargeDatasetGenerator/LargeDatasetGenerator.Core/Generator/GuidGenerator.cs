@@ -6,7 +6,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// A generator that creates GUID objects and returns their string representation
     /// </summary>
-    public sealed class GuidGenerator : IDataGenerator
+    public sealed class GuidGenerator : ProgressGenerator, IDataGenerator
     {
         #region Properties
 

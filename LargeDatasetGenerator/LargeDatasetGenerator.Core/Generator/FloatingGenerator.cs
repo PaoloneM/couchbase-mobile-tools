@@ -89,7 +89,7 @@ namespace LargeDatasetGenerator.Generator
         #endregion
     }
 
-    public sealed class FloatingGenerator : IDataGenerator
+    public sealed class FloatingGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

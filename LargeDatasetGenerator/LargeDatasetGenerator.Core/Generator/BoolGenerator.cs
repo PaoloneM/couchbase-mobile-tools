@@ -5,7 +5,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// A generator that will randomly generate true or false
     /// </summary>
-    public sealed class BoolGenerator : IDataGenerator
+    public sealed class BoolGenerator : ProgressGenerator, IDataGenerator
     {
         #region Properties
 

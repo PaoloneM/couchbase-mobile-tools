@@ -83,7 +83,7 @@ namespace LargeDatasetGenerator.Generator
         #endregion
     }
 
-    public sealed class LoremGenerator : IDataGenerator
+    public sealed class LoremGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

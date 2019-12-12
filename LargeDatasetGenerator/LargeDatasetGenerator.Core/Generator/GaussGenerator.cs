@@ -85,7 +85,7 @@ namespace LargeDatasetGenerator.Generator
         #endregion
     }
 
-    public sealed class GaussGenerator : IDataGenerator
+    public sealed class GaussGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

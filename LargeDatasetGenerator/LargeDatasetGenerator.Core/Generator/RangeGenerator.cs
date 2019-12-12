@@ -91,7 +91,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// A generator that creates an array of numbers in a range
     /// </summary>
-    public sealed class RangeGenerator : IDataGenerator
+    public sealed class RangeGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

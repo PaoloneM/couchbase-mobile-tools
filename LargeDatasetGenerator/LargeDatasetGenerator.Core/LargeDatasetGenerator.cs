@@ -33,6 +33,8 @@ using LargeDatasetGenerator.Output;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Newtonsoft;
+
 namespace LargeDatasetGenerator
 {
     /// <summary>
@@ -192,7 +194,8 @@ namespace LargeDatasetGenerator
 
                 var result = new Dictionary<string, object>();
                 try {
-                    await ApplyTemplate(templateObject, result).ConfigureAwait(false);
+                    Console.WriteLine($"Generate - count: {Count} - i: {i}");
+                    await ApplyTemplate(templateObject, result, i, Count).ConfigureAwait(false);
                 } catch (Exception e) {
                     state.Stop();
                     exceptions.Add(e);
@@ -256,9 +259,10 @@ namespace LargeDatasetGenerator
 
         #region Private Methods
 
-        private static IDataGenerator GetOrCreate(string generatorText)
+        private static IDataGenerator GetOrCreate(string generatorText, int i, int Count)
         {
-            return Generators.GetOrAdd(generatorText, x =>
+        
+            IDataGenerator instance = Generators.GetOrAdd(generatorText, x =>
             {
                 var argStart = generatorText.IndexOf('(');
                 var functionName = generatorText.Substring(0, argStart);
@@ -267,9 +271,11 @@ namespace LargeDatasetGenerator
                 Generators[generatorText] = generator;
                 return generator;
             });
+            instance.setProgress(i, Count);
+            return instance;
         }
 
-        private async Task ApplyRepeatTemplate(IReadOnlyDictionary<string, object> template, IList<object> result)
+        private async Task ApplyRepeatTemplate(IReadOnlyDictionary<string, object> template, IList<object> result, int i, int Count)
         {
             var key = template.Keys.First(x => x.StartsWith("repeat"));
             var argStart = key.IndexOf('(');
@@ -277,24 +283,28 @@ namespace LargeDatasetGenerator
             var (min, max) = parser.Parse();
             var repeatCount = ThreadSafeRandom.Next(min, max);
             var dummyTemplate = Enumerable.Repeat(template[key], repeatCount);
-            await ApplyTemplate(dummyTemplate.ToList(), result);
+            await ApplyTemplate(dummyTemplate.ToList(), result, i, Count);
         }
 
         private async Task ApplyTemplate(IReadOnlyDictionary<string, object> template,
-            IDictionary<string, object> result)
+            IDictionary<string, object> result, 
+            int i, 
+            int Count)
         {
+            //Console.WriteLine($"ApplyTemplate - Template: {JsonConvert.SerializeObject(template)}");
             foreach (var entry in template) {
+                //Console.WriteLine($"ApplyTemplate - entry: {JsonConvert.SerializeObject(entry.Value)}");
                 if (entry.Value is string s) {
-                    var generated = await SearchAndReplace(s).ConfigureAwait(false);
+                    var generated = await SearchAndReplace(s, i, Count).ConfigureAwait(false);
                     result[entry.Key] = generated;
                 } else if (entry.Value is JObject jObj) {
                     var subObject = new Dictionary<string, object>();
-                    await ApplyTemplate(jObj.ToObject<IReadOnlyDictionary<string, object>>(), subObject)
+                    await ApplyTemplate(jObj.ToObject<IReadOnlyDictionary<string, object>>(), subObject, i, Count)
                         .ConfigureAwait(false);
                     result[entry.Key] = subObject;
                 } else if (entry.Value is JArray jArr) {
                     var subObject = new List<object>();
-                    await ApplyTemplate(jArr.ToObject<IReadOnlyList<object>>(), subObject).ConfigureAwait(false);
+                    await ApplyTemplate(jArr.ToObject<IReadOnlyList<object>>(), subObject, i , Count).ConfigureAwait(false);
                     result[entry.Key] = subObject;
                 } else {
                     result[entry.Key] = entry.Value;
@@ -302,18 +312,21 @@ namespace LargeDatasetGenerator
             }
         }
 
-        private async Task ApplyTemplate(IReadOnlyList<object> template, IList<object> result)
+        private async Task ApplyTemplate(IReadOnlyList<object> template, IList<object> result,
+            int i, 
+            int Count)
         {
+            //Console.WriteLine($"ApplyTemplate2 - Template: {JsonConvert.SerializeObject(template)}");
             foreach (var entry in template) {
                 if (entry is string s) {
-                    var generated = await SearchAndReplace(s).ConfigureAwait(false);
+                    var generated = await SearchAndReplace(s, i, Count).ConfigureAwait(false);
                     result.Add(generated);
                 } else if (entry is JObject jObj) {
-                    await ApplyTemplateFunctions(jObj.ToObject<IReadOnlyDictionary<string, object>>(), result)
+                    await ApplyTemplateFunctions(jObj.ToObject<IReadOnlyDictionary<string, object>>(), result, i, Count)
                         .ConfigureAwait(false);
                 } else if (entry is JArray jArr) {
                     var subObject = new List<object>();
-                    await ApplyTemplate(jArr.ToObject<IReadOnlyList<object>>(), subObject).ConfigureAwait(false);
+                    await ApplyTemplate(jArr.ToObject<IReadOnlyList<object>>(), subObject, i, Count).ConfigureAwait(false);
                     result.Add(subObject);
                 } else {
                     result.Add(entry);
@@ -321,7 +334,7 @@ namespace LargeDatasetGenerator
             }
         }
 
-        private async Task ApplyTemplateFunctions(IReadOnlyDictionary<string, object> template, IList<object> result)
+        private async Task ApplyTemplateFunctions(IReadOnlyDictionary<string, object> template, IList<object> result, int i, int Count)
         {
             var special = false;
             foreach (var entry in template) {
@@ -333,10 +346,10 @@ namespace LargeDatasetGenerator
 
             if (!special) {
                 var subObject = new Dictionary<string, object>();
-                await ApplyTemplate(template, subObject).ConfigureAwait(false);
+                await ApplyTemplate(template, subObject, i, Count).ConfigureAwait(false);
                 result.Add(subObject);
             } else {
-                await ApplyRepeatTemplate(template, result).ConfigureAwait(false);
+                await ApplyRepeatTemplate(template, result, i, Count).ConfigureAwait(false);
             }
         }
 
@@ -372,7 +385,7 @@ namespace LargeDatasetGenerator
             }
         }
 
-        private async Task<object> SearchAndReplace(string source)
+        private async Task<object> SearchAndReplace(string source, int iteration, int Count)
         {
             var finalString = new StringBuilder(source);
             var matches = Regex.Matches(source, "\\{\\{(.*?)\\}\\}");
@@ -380,7 +393,7 @@ namespace LargeDatasetGenerator
             object generated = null;
             for (int i = matches.Count - 1; i >= 0; i--) {
                 var generatorText = matches[i].Groups[1].Value;
-                var generator = GetOrCreate(generatorText);
+                var generator = GetOrCreate(generatorText, iteration, Count);
                 generated = await generator.GenerateValueAsync().ConfigureAwait(false);
 
                 if (!standalone) {

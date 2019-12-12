@@ -83,7 +83,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// A generator that generates random 64-bit integers
     /// </summary>
-    public sealed class IntegerGenerator : IDataGenerator
+    public sealed class IntegerGenerator : ProgressGenerator, IDataGenerator
     {
         #region Variables
 

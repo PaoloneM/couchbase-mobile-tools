@@ -23,7 +23,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// An interface for generating values to insert into a set of output data.
     /// </summary>
-    public interface IDataGenerator
+    public interface IDataGenerator:IDataGeneratorProgress
     {
         #region Properties
 
@@ -47,6 +47,12 @@ namespace LargeDatasetGenerator.Generator
         /// <returns>An awaitable task holding the result</returns>
         Task<object> GenerateValueAsync();
 
+        
         #endregion
     }
+
+public interface IDataGeneratorProgress{
+            void setProgress(int i, int Count);
+
+}
 }
