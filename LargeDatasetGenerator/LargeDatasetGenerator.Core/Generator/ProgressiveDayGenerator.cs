@@ -11,7 +11,7 @@ namespace LargeDatasetGenerator.Generator
     /// <summary>
     /// A generator that randomly generates a date between two given dates
     /// </summary>
-    public sealed class ProgressiveDateGenerator : IDataGenerator
+    public sealed class ProgressiveDayGenerator : IDataGenerator
     {
         #region Variables
 
@@ -28,10 +28,10 @@ namespace LargeDatasetGenerator.Generator
         #region Properties
 
         /// <inheritdoc />
-        public string Description { get; } = "Randomly generates a date between the given min and max";
+        public string Description { get; } = "Randomly generates a day (yyyyMMdd) between the given min and max";
 
         /// <inheritdoc />
-        public string Signature { get; } = "{{progressiveDate(min: Date = new Date(1970, 1, 1, 0, 0, 0), max: Date = new Date())}}";
+        public string Signature { get; } = "{{progressiveday(min: Date = new Date(1970, 1, 1, 0, 0, 0), max: Date = new Date())}}";
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace LargeDatasetGenerator.Generator
         /// Constructor
         /// </summary>
         /// <param name="parameters">The parameters of the date function call</param>
-        public ProgressiveDateGenerator(string parameters)
+        public ProgressiveDayGenerator(string parameters)
         {
             var parser = new DateTimeGeneratorParser(parameters);
             (DateTimeOffset min, DateTimeOffset max) result = parser.Parse();
@@ -52,12 +52,12 @@ namespace LargeDatasetGenerator.Generator
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ProgressiveDateGenerator() : this("()")
+        public ProgressiveDayGenerator() : this("()")
         {
             
         }
 
-        public void     setProgress(int i, int Count){
+        public void setProgress(int i, int Count){
             currentIteration = i;
             maxIterations = Count;
         }
@@ -71,7 +71,7 @@ namespace LargeDatasetGenerator.Generator
         {
             double diff = (currentIteration * (_max.Ticks - _min.Ticks) / maxIterations);
             var nextTicks = Convert.ToInt64(Math.Round(diff)) + _min.Ticks;
-            return Task.FromResult<object>(new DateTimeOffset(nextTicks, TimeSpan.Zero).ToString("yyyy-MM-ddTHH:mm:ss.fffZ", null));
+            return Task.FromResult<object>(new DateTimeOffset(nextTicks, TimeSpan.Zero).ToString("yyyyMMdd", null));
         }
 
         #endregion
