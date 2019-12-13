@@ -21,5 +21,7 @@
   "range":  "{{range(1, 10)}}",
   "description":  "{{lorem(3, paragraphs)}}",
   "job_performance":  "{{gauss()}}",
-  "constant_answer": 42
+  "constant_answer": 42,
+  "datetime": "{{progressivedate(new Date(2019, 1, 1), new Date(2019, 12, 31))}}",
+  "day": "{{progressiveday(new Date(2019, 1, 1), new Date(2019, 12, 31))}}"
 }
