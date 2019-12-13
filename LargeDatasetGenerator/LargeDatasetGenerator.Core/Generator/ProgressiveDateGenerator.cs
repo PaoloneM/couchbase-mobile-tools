@@ -70,8 +70,8 @@ namespace LargeDatasetGenerator.Generator
         public Task<object> GenerateValueAsync()
         {
             double diff = (currentIteration * (_max.Ticks - _min.Ticks) / maxIterations);
-            var nextTicks = Convert.ToInt64(Math.Round(diff));
-            return Task.FromResult<object>(new DateTimeOffset(nextTicks, TimeSpan.Zero));
+            var nextTicks = Convert.ToInt64(Math.Round(diff)) + _min.Ticks;
+            return Task.FromResult<object>(new DateTimeOffset(nextTicks, TimeSpan.Zero).ToString("yyyy-MM-ddTHH:mm:ssZ", null));
         }
 
         #endregion
