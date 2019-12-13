@@ -31,7 +31,7 @@ namespace LargeDatasetGenerator.Generator
         public string Description { get; } = "Randomly generates a date between the given min and max";
 
         /// <inheritdoc />
-        public string Signature { get; } = "{{progressiveDate(min: Date = new Date(1970, 1, 1, 0, 0, 0), max: Date = new Date())}}";
+        public string Signature { get; } = "{{progressivedate(min: Date = new Date(1970, 1, 1, 0, 0, 0), max: Date = new Date())}}";
 
         #endregion
 
